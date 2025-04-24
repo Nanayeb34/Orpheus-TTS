@@ -88,7 +88,7 @@ class OrpheusModel:
                 adapted_prompt=self.tokenizer(transcript,return_tensors="pt")
                 zero_prompt_input_ids=torch.cat([start_token,adapted_prompt.input_ids,end_tokens,torch.tensor([myts]),final_token],dim=1)
                 
-                input_ids=self.tokenizer(prompt,return_tenosr="pt").input_ids
+                input_ids=self.tokenizer(prompt,return_tensors="pt").input_ids
                 all_input_ids = torch.cat([zero_prompt_input_ids,start_token, input_ids, end_tokens], dim=1)
                 prompt_string=self.tokenizer.decode(all_input_ids[0])
                 return prompt_string
