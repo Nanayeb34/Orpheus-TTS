@@ -80,6 +80,7 @@ class OrpheusModel:
         else:
             if 'darlington' in voice:
                 number= voice.split('_')[-1]
+                print(f"using darlington voice {number}")
                 with open(f'darlington_{number}.pkl','rb') as f:
                     myts=pickle.load(f)
                     transcript=transcripts[f'darlington_{number}']
