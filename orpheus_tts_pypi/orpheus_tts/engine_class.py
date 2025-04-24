@@ -7,7 +7,8 @@ import threading
 import queue
 import pickle
 from .decoder import tokens_decoder_sync
-
+transcripts={"darlington_1":"A math verifier. So let's say a calculator. You will keep trying things and then using a calculator to check if it's correct. Based on that, it can improve and become superhuman. We saw this in chess. When an AI system beat humans in chess in like what the 90s and since then, no one has been able to beat AI systems. We've seen this in go. It's going to happen in every field. So human beings are here and we never seem to change, but AI step every couple of months is doing this...",
+             "darlington_2":"Sure. So um I grew up in Ghana. I grew up all over Ghana actually. So growing up, I was all over the place, but there were two things that I think I really enjoyed. So I enjoyed drawing anything that has to do with art I was into. But I also enjoyed destroying things <laugh>. So, and especially electronic devices. um I think I blew up a couple of TVs, almost burned down the house the house once, and um..."}
 class OrpheusModel:
     def __init__(self, model_name, dtype=torch.bfloat16, tokenizer='canopylabs/orpheus-3b-0.1-pretrained', **engine_kwargs):
         self.model_name = self._map_model_params(model_name)
@@ -81,7 +82,7 @@ class OrpheusModel:
                 number= voice.split('_')[-1]
                 with open(f'darlington_{number}.pkl','rb') as f:
                     myts=pickle.load(f)
-                transcript="""A math verifier. So let's say a calculator. You will keep trying things and then using a calculator to check if it's correct. Based on that, it can improve and become superhuman. We saw this in chess. When an AI system beat humans in chess in like what the 90s and since then, no one has been able to beat AI systems. We've seen this in go. It's going to happen in every field. So human beings are here and we never seem to change, but AI step every couple of months is doing this..."""
+                    transcript=transcripts[f'darlington_{number}']
                 start_token = torch.tensor([[ 128259]], dtype=torch.int64)
                 end_tokens = torch.tensor([[128009, 128260, 128261, 128257]], dtype=torch.int64)   
                 final_token=torch.tensor([[128258,128262]],dtype=torch.int64)            
