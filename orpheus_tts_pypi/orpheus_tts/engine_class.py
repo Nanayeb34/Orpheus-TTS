@@ -84,7 +84,7 @@ class OrpheusModel:
                 transcript="""A math verifier. So let's say a calculator. You will keep trying things and then using a calculator to check if it's correct. Based on that, it can improve and become superhuman. We saw this in chess. When an AI system beat humans in chess in like what the 90s and since then, no one has been able to beat AI systems. We've seen this in go. It's going to happen in every field. So human beings are here and we never seem to change, but AI step every couple of months is doing this..."""
                 start_token = torch.tensor([[ 128259]], dtype=torch.int64)
                 end_tokens = torch.tensor([[128009, 128260, 128261, 128257]], dtype=torch.int64)   
-                final_token=torch.tensor([128258,128262],dtype=torch.int64)            
+                final_token=torch.tensor([[128258,128262]],dtype=torch.int64)            
                 adapted_prompt=self.tokenizer(transcript,return_tensors="pt")
                 zero_prompt_input_ids=torch.cat([start_token,adapted_prompt.input_ids,end_tokens,torch.tensor([myts]),final_token],dim=1)
                 
