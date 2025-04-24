@@ -92,8 +92,8 @@ class OrpheusModel:
                 
                 input_ids=self.tokenizer(prompt,return_tensors="pt").input_ids
                 all_input_ids = torch.cat([zero_prompt_input_ids,start_token, input_ids, end_tokens], dim=1)
-                prompt_string=self.tokenizer.decode(all_input_ids[0])
-                return prompt_string
+                return all_input_ids
+            
             elif 'darlington' not in voice:
                 adapted_prompt = f"{voice}: {prompt}"
                 prompt_tokens = self.tokenizer(adapted_prompt, return_tensors="pt")
@@ -127,9 +127,14 @@ class OrpheusModel:
         token_queue = queue.Queue()
 
         async def async_producer():
-            async for result in self.engine.generate(prompt=prompt_string, sampling_params=sampling_params, request_id=request_id):
-                # Place each token text into the queue.
-                token_queue.put(result.outputs[0].text)
+            if 'darlington' in voice:
+                async for result in self.engine.generate(input_ids=prompt_string, sampling_params=sampling_params, request_id=request_id):
+                    # Place each token text into the queue.
+                    token_queue.put(result.outputs[0].text)
+            else:
+                async for result in self.engine.generate(prompt=prompt_string, sampling_params=sampling_params, request_id=request_id):
+                    # Place each token text into the queue.
+                    token_queue.put(result.outputs[0].text)
             token_queue.put(None)  # Sentinel to indicate completion.
 
         def run_async():
