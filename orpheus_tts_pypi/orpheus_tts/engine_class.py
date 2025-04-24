@@ -83,16 +83,19 @@ class OrpheusModel:
                 print(f"using darlington voice {number}")
                 with open(f'darlington_{number}.pkl','rb') as f:
                     myts=pickle.load(f)
-                    transcript=transcripts[f'darlington_{number}']
+                    ref_transcript=transcripts[f'darlington_{number}']
                 start_token = torch.tensor([[ 128259]], dtype=torch.int64)
                 end_tokens = torch.tensor([[128009, 128260, 128261, 128257]], dtype=torch.int64)   
-                final_token=torch.tensor([[128258,128262]],dtype=torch.int64)            
-                adapted_prompt=self.tokenizer(transcript,return_tensors="pt")
-                zero_prompt_input_ids=torch.cat([start_token,adapted_prompt.input_ids,end_tokens,torch.tensor([myts]),final_token],dim=1)
+                final_token=torch.tensor([[128258,128262]],dtype=torch.int64) 
+
+
+                adapted_prompt=self.tokenizer(ref_transcript,return_tensors="pt")
+                zero_prompt_input_ids=torch.cat([start_token,adapted_prompt['input_ids'],end_tokens,torch.tensor([myts]),final_token],dim=1)
                 
                 input_ids=self.tokenizer(prompt,return_tensors="pt").input_ids
                 all_input_ids = torch.cat([zero_prompt_input_ids,start_token, input_ids, end_tokens], dim=1)
-                return all_input_ids
+                prompt_string = self.tokenizer.decode(all_input_ids[0])
+                return prompt_string
             
             elif 'darlington' not in voice:
                 adapted_prompt = f"{voice}: {prompt}"
@@ -115,7 +118,6 @@ class OrpheusModel:
 
     def generate_tokens_sync(self, prompt, voice=None, request_id="req-001", temperature=0.6, top_p=0.8, max_tokens=1200, stop_token_ids = [49158], repetition_penalty=1.3):
         prompt_string = self._format_prompt(prompt, voice)
-        print(prompt)
         sampling_params = SamplingParams(
         temperature=temperature,
         top_p=top_p,
