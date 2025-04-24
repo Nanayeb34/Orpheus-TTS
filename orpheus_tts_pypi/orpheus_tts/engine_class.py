@@ -5,6 +5,7 @@ from vllm import AsyncLLMEngine, AsyncEngineArgs, SamplingParams
 from transformers import AutoTokenizer
 import threading
 import queue
+import pickle
 from .decoder import tokens_decoder_sync
 
 class OrpheusModel:
@@ -76,6 +77,21 @@ class OrpheusModel:
             else:
                 return f"<custom_token_3>{prompt}<custom_token_4><custom_token_5>"
         else:
+            if 'darlington' in voice:
+                number= voice.split('_')[-1]
+                with open(f'darlington_{number}.pkl','rb') as f:
+                    myts=pickle.load(f)
+                transcript="""A math verifier. So let's say a calculator. You will keep trying things and then using a calculator to check if it's correct. Based on that, it can improve and become superhuman. We saw this in chess. When an AI system beat humans in chess in like what the 90s and since then, no one has been able to beat AI systems. We've seen this in go. It's going to happen in every field. So human beings are here and we never seem to change, but AI step every couple of months is doing this..."""
+                start_token = torch.tensor([[ 128259]], dtype=torch.int64)
+                end_tokens = torch.tensor([[128009, 128260, 128261, 128257]], dtype=torch.int64)   
+                final_token=torch.tensor([128258,128262],dtype=torch.int64)            
+                adapted_prompt=self.tokenizer(transcript,return_tensor="pt")
+                zero_prompt_input_ids=torch.cat([start_token,adapted_prompt.input_ids,end_tokens,torch.tensor([myts]),final_token],dim=1)
+                
+                input_ids=self.tokenizer(prompt,return_tenosr="pt").input_ids
+                all_input_ids = torch.cat([zero_prompt_input_ids,start_token, input_ids, end_tokens], dim=1)
+                prompt_string=self.tokenizer.decode(all_input_ids[0])
+                return prompt_string
             if voice:
                 adapted_prompt = f"{voice}: {prompt}"
                 prompt_tokens = self.tokenizer(adapted_prompt, return_tensors="pt")
